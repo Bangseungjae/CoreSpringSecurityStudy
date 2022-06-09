@@ -1,5 +1,6 @@
 package io.security.CoreSpringSecurity.security.filter;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.intercept.InterceptorStatusToken;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
@@ -12,11 +13,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class PermitAllFilter extends FilterSecurityInterceptor {
 
     private static final String FILTER_APPLIED = "__spring_security_filterSecurityInterceptor_filterApplied";
-    private boolean observeOncePerRequest = true;
-
     List<RequestMatcher> permitAllRequestMatcher = new ArrayList<>();
 
     public PermitAllFilter(String... permitAllResources) {
@@ -30,6 +30,9 @@ public class PermitAllFilter extends FilterSecurityInterceptor {
 
         boolean permitAll = false;
         HttpServletRequest request = ((FilterInvocation) object).getRequest();
+
+        log.info("PermitAllFilter request: {}", request);
+
         for (RequestMatcher requestMatcher : permitAllRequestMatcher) {
             if (requestMatcher.matches(request)) {
                 permitAll = true;
@@ -43,37 +46,36 @@ public class PermitAllFilter extends FilterSecurityInterceptor {
         return super.beforeInvocation(object);
     }
 
-    public void invoke(FilterInvocation filterInvocation) throws IOException, ServletException {
-        if (isApplied(filterInvocation) && this.observeOncePerRequest) {
+    @Override
+    public void invoke(FilterInvocation fi) throws IOException, ServletException {
+
+        if ((fi.getRequest() != null) && (fi.getRequest().getAttribute(FILTER_APPLIED) != null)
+                && super.isObserveOncePerRequest()) {
             // filter already applied to this request and user wants us to observe
             // once-per-request handling, so don't re-do security checking
-            filterInvocation.getChain().doFilter(filterInvocation.getRequest(), filterInvocation.getResponse());
-            return;
+            fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
+        } else {
+            // first time this request being called, so perform security checking
+            if (fi.getRequest() != null) {
+                fi.getRequest().setAttribute(FILTER_APPLIED, Boolean.TRUE);
+            }
+
+            InterceptorStatusToken token = beforeInvocation(fi);
+
+            try {
+                log.info("getRequest: {}, getResponse: {}", fi.getRequest(), fi.getResponse());
+                fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
+            } finally {
+                super.finallyInvocation(token);
+            }
+
+            super.afterInvocation(token, null);
         }
-        // first time this request being called, so perform security checking
-        if (filterInvocation.getRequest() != null && this.observeOncePerRequest) {
-            filterInvocation.getRequest().setAttribute(FILTER_APPLIED, Boolean.TRUE);
-        }
-        InterceptorStatusToken token = super.beforeInvocation(filterInvocation);
-        try {
-            filterInvocation.getChain().doFilter(filterInvocation.getRequest(), filterInvocation.getResponse());
-        }
-        finally {
-            super.finallyInvocation(token);
-        }
-        super.afterInvocation(token, null);
     }
 
-    private boolean isApplied(FilterInvocation filterInvocation) {
-        return (filterInvocation.getRequest() != null)
-                && (filterInvocation.getRequest().getAttribute(FILTER_APPLIED) != null);
-    }
-
-    public boolean isObserveOncePerRequest() {
-        return this.observeOncePerRequest;
-    }
-
-    public void setObserveOncePerRequest(boolean observeOncePerRequest) {
-        this.observeOncePerRequest = observeOncePerRequest;
+    private void createPermitAllPattern(String... permitAllPattern) {
+        for (String pattern : permitAllPattern) {
+            permitAllRequestMatcher.add(new AntPathRequestMatcher(pattern));
+        }
     }
 }

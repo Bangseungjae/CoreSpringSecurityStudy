@@ -7,15 +7,16 @@ import io.security.CoreSpringSecurity.security.handler.CustomAccessDeniedHandler
 import io.security.CoreSpringSecurity.security.provider.CustomAuthenticationProvider;
 import io.security.CoreSpringSecurity.security.service.SecurityResourceService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDecisionVoter;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.access.vote.AffirmativeBased;
-import org.springframework.security.access.vote.RoleVoter;
+import org.springframework.security.access.vote.RoleHierarchyVoter;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -27,13 +28,12 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 @EnableWebSecurity
@@ -51,7 +51,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
 
-
     @Autowired
     private AuthenticationSuccessHandler customAuthenticationSuccessHandler;
     @Autowired
@@ -60,7 +59,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private SecurityResourceService securityResourceService;
 
-    private String[] permitAllResources = {"/", "/login", "/user/login/**"};
+    private String[] permitAllResources = {"/", "/login", "/user/login/**", "/home", "/users"};
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
@@ -90,10 +89,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/","/users", "/user/login/**", "/login*").permitAll()
-                .antMatchers("/mypage").hasRole("USER")
-                .antMatchers("/manager").hasRole("MANAGER")
-                .antMatchers("/config").hasRole("ADMIN")
+//                .antMatchers("/","/users", "/user/login/**", "/login*").permitAll()
+//                .antMatchers("/mypage").hasRole("USER")
+//                .antMatchers("/manager").hasRole("MANAGER")
+//                .antMatchers("/config").hasRole("ADMIN")
                 .anyRequest().authenticated()
 
         .and()
@@ -112,12 +111,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .accessDeniedPage("/denied")
                 .accessDeniedHandler(accessDeniedHandler())
                 .and()
-                .addFilterBefore(customFilterSecurityInterceptor(), FilterSecurityInterceptor.class);
+                .addFilterBefore(permitAllFilter(), FilterSecurityInterceptor.class);
 
                 http
                         .csrf()
                         .disable();
-
 
     }
 
@@ -127,12 +125,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return accessDeniedHandler;
     }
 
-    public PermitAllFilter customFilterSecurityInterceptor() throws Exception {
+//    @Bean
+    public PermitAllFilter permitAllFilter() throws Exception {
         PermitAllFilter permitAll = new PermitAllFilter(permitAllResources);
         permitAll.setSecurityMetadataSource(urlFilterInvocationSecurityMetadataSource());
         permitAll.setAccessDecisionManager(affirmativeBased());
         permitAll.setAuthenticationManager(authenticationManagerBean());
         return permitAll;
+    }
+
+    @Bean
+    public FilterRegistrationBean filterRegistrationBean() throws Exception {
+        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
+        filterRegistrationBean.setFilter(permitAllFilter());
+        filterRegistrationBean.setEnabled(false);
+        return filterRegistrationBean;
     }
 
     private AccessDecisionManager affirmativeBased() {
@@ -141,7 +148,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     private List<AccessDecisionVoter<?>> getAccessDecisionVoters() {
-        return Arrays.asList(new RoleVoter());
+
+        List<AccessDecisionVoter<? extends Object>> accessDecisionVoters = new ArrayList<>();
+        accessDecisionVoters.add(roleVoter());
+
+        return accessDecisionVoters;
+    }
+
+    @Bean
+    public AccessDecisionVoter<? extends Object> roleVoter() {
+        RoleHierarchyVoter roleHierarchyVoter = new RoleHierarchyVoter(roleHierarchy());
+        return roleHierarchyVoter;
+    }
+
+    @Bean
+    public RoleHierarchyImpl roleHierarchy() {
+        RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
+        return roleHierarchy;
     }
 
 

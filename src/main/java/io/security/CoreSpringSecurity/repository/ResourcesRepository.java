@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ResourcesRepository extends JpaRepository<Resources, Long> {
-    //
 
     Resources findByResourceNameAndHttpMethod(String resourceName, String httpMethod);
 
