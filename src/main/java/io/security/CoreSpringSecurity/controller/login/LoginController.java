@@ -21,7 +21,7 @@ import java.security.Principal;
 @Slf4j
 public class LoginController {
 
-    @RequestMapping(value = {"/api/login", "/login"})
+    @RequestMapping(value = {"/login", "/api/login"})
     public String login(@RequestParam(value = "error", required = false) String error,
                         @RequestParam(value = "exception", required = false) String exception, Model model) {
         log.info("===login start===");

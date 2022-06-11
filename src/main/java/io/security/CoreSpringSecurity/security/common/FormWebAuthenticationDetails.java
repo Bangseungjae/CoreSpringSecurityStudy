@@ -1,8 +1,10 @@
 package io.security.CoreSpringSecurity.security.common;
 
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
+
 
 public class FormWebAuthenticationDetails extends WebAuthenticationDetails {
 

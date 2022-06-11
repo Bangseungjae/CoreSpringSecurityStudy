@@ -17,11 +17,14 @@ import java.util.List;
 public class PermitAllFilter extends FilterSecurityInterceptor {
 
     private static final String FILTER_APPLIED = "__spring_security_filterSecurityInterceptor_filterApplied";
-    List<RequestMatcher> permitAllRequestMatcher = new ArrayList<>();
+    private boolean observeOncePerRequest = true;
 
-    public PermitAllFilter(String... permitAllResources) {
-        for (String resource : permitAllResources) {
-            permitAllRequestMatcher.add(new AntPathRequestMatcher(resource));
+    private List<RequestMatcher> permitAllRequestMatchers =  new ArrayList<>();
+
+    public PermitAllFilter(String...permitAllResources){
+
+        for(String resource : permitAllResources){
+            permitAllRequestMatchers.add(new AntPathRequestMatcher(resource));
         }
     }
 
@@ -30,42 +33,40 @@ public class PermitAllFilter extends FilterSecurityInterceptor {
 
         boolean permitAll = false;
         HttpServletRequest request = ((FilterInvocation) object).getRequest();
-
-        log.info("PermitAllFilter request: {}", request);
-
-        for (RequestMatcher requestMatcher : permitAllRequestMatcher) {
-            if (requestMatcher.matches(request)) {
+        for(RequestMatcher requestMatcher : permitAllRequestMatchers){
+            if(requestMatcher.matches(request)){
                 permitAll = true;
                 break;
             }
         }
-        if (permitAll) {
+
+        if(permitAll){
             return null;
         }
 
         return super.beforeInvocation(object);
     }
 
-    @Override
     public void invoke(FilterInvocation fi) throws IOException, ServletException {
-
-        if ((fi.getRequest() != null) && (fi.getRequest().getAttribute(FILTER_APPLIED) != null)
-                && super.isObserveOncePerRequest()) {
+        if ((fi.getRequest() != null)
+                && (fi.getRequest().getAttribute(FILTER_APPLIED) != null)
+                && observeOncePerRequest) {
             // filter already applied to this request and user wants us to observe
             // once-per-request handling, so don't re-do security checking
             fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
-        } else {
+        }
+        else {
             // first time this request being called, so perform security checking
-            if (fi.getRequest() != null) {
+            if (fi.getRequest() != null && observeOncePerRequest) {
                 fi.getRequest().setAttribute(FILTER_APPLIED, Boolean.TRUE);
             }
 
             InterceptorStatusToken token = beforeInvocation(fi);
 
             try {
-                log.info("getRequest: {}, getResponse: {}", fi.getRequest(), fi.getResponse());
                 fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
-            } finally {
+            }
+            finally {
                 super.finallyInvocation(token);
             }
 
@@ -73,9 +74,4 @@ public class PermitAllFilter extends FilterSecurityInterceptor {
         }
     }
 
-    private void createPermitAllPattern(String... permitAllPattern) {
-        for (String pattern : permitAllPattern) {
-            permitAllRequestMatcher.add(new AntPathRequestMatcher(pattern));
-        }
-    }
 }

@@ -23,6 +23,9 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    public CustomAuthenticationProvider(PasswordEncoder passwordEncoder) {
+    }
+
     //검증을 위한 코드
     @Override
     @Transactional
