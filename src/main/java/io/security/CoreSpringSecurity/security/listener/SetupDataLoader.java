@@ -70,12 +70,15 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         createResourceIfNotFound("io.security.corespringsecurity.aopsecurity.method.AopMethodService.methodTest", "", roles1, "method");
         createResourceIfNotFound("io.security.corespringsecurity.aopsecurity.method.AopMethodService.innerCallMethodTest", "", roles1, "method");
         createResourceIfNotFound("execution(* io.security.corespringsecurity.aopsecurity.pointcut.*Service.*(..))", "", roles1, "pointcut");
+        createResourceIfNotFound("/config","", roles, "url");
+        createResourceIfNotFound("/messages","", roles1, "url");
         createUserIfNotFound("manager", "pass", "manager@gmail.com", 20, roles1);
         createRoleHierarchyIfNotFound(managerRole, adminRole);
 
         Set<Role> roles3 = new HashSet<>();
         Role childRole1 = createRoleIfNotFound("ROLE_USER", "회원");
         roles3.add(childRole1);
+        createResourceIfNotFound("/mypage","", roles3, "url");
 
         createResourceIfNotFound("/users/**", "", roles3, "url");
         createUserIfNotFound("user", "pass", "user@gmail.com", 30, roles3);

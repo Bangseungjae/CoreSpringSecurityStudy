@@ -15,13 +15,11 @@ import java.util.*;
 public class UrlFilterInvocationSecurityMetadataSource implements FilterInvocationSecurityMetadataSource {
 
     private LinkedHashMap<RequestMatcher, List<ConfigAttribute>> requestMap;
-
-    @Autowired
     private SecurityResourceService securityResourceService;
 
-    public UrlFilterInvocationSecurityMetadataSource(LinkedHashMap<RequestMatcher, List<ConfigAttribute>> requestMap) {
+    public UrlFilterInvocationSecurityMetadataSource(LinkedHashMap<RequestMatcher, List<ConfigAttribute>> requestMap, SecurityResourceService securityResourceService) {
         this.requestMap = requestMap;
-
+        this.securityResourceService = securityResourceService;
     }
 
     @Override
@@ -41,12 +39,14 @@ public class UrlFilterInvocationSecurityMetadataSource implements FilterInvocati
 
     @Override
     public Collection<ConfigAttribute> getAllConfigAttributes() {
-        return null;
+        Set<ConfigAttribute> allAttributes = new HashSet<>();
+        this.requestMap.values().forEach(allAttributes::addAll);
+        return allAttributes;
     }
 
     @Override
     public boolean supports(Class<?> clazz) {
-        return false;
+        return FilterInvocation.class.isAssignableFrom(clazz);
     }
 
     public void reload() {
