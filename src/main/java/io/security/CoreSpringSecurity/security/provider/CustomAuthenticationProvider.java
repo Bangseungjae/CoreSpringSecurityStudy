@@ -1,8 +1,7 @@
 package io.security.CoreSpringSecurity.security.provider;
 
 import io.security.CoreSpringSecurity.security.common.FormWebAuthenticationDetails;
-import io.security.CoreSpringSecurity.security.service.AccountContext;
-import lombok.AllArgsConstructor;
+import io.security.CoreSpringSecurity.service.AccountContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;

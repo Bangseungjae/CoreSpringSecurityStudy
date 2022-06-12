@@ -1,6 +1,6 @@
 package io.security.CoreSpringSecurity.security.provider;
 
-import io.security.CoreSpringSecurity.security.service.AccountContext;
+import io.security.CoreSpringSecurity.service.AccountContext;
 import io.security.CoreSpringSecurity.security.token.AjaxAuthenticationToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;

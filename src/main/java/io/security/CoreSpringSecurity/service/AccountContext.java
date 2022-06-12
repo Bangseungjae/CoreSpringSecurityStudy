@@ -1,4 +1,4 @@
-package io.security.CoreSpringSecurity.security.service;
+package io.security.CoreSpringSecurity.service;
 
 import io.security.CoreSpringSecurity.domain.entity.Account;
 import org.springframework.security.core.GrantedAuthority;

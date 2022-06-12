@@ -52,15 +52,15 @@ public class ResourcesController {
 
         return "redirect:/admin/resources";
     }
-//
-//    @GetMapping(value="/admin/resources")
-//    public String getResources(Model model) throws Exception {
-//
-//        List<Resources> resources = resourcesService.getResources();
-//        model.addAttribute("resources", resources);
-//
-//        return "admin/resource/list";
-//    }
+
+    @GetMapping(value="/admin/resources")
+    public String getResources(Model model) throws Exception {
+
+        List<Resources> resources = resourcesService.getResources();
+        model.addAttribute("resources", resources);
+
+        return "admin/resource/list";
+    }
 
 //    @PostMapping(value="/admin/resources")
 //    public String createResources(ResourcesDto resourcesDto) throws Exception {
