@@ -47,7 +47,7 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         }
 
         setupSecurityResources();
-//        setupAccessIpData();
+        setupAccessIpData();
 
         alreadySetup = true;
     }
@@ -160,6 +160,14 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         if (byIpAddress == null) {
             AccessIp accessIp = AccessIp.builder()
                     .ipAddress("127.0.0.1")
+                    .build();
+            accessIpRepository.save(accessIp);
+        }
+
+        AccessIp byIpAddress2 = accessIpRepository.findByIpAddress("0:0:0:0:0:0:0:1");
+        if (byIpAddress2 == null) {
+            AccessIp accessIp = AccessIp.builder()
+                    .ipAddress("0:0:0:0:0:0:0:1")
                     .build();
             accessIpRepository.save(accessIp);
         }

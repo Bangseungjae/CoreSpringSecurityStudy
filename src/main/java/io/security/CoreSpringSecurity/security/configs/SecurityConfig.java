@@ -7,6 +7,7 @@ import io.security.CoreSpringSecurity.security.filter.PermitAllFilter;
 import io.security.CoreSpringSecurity.security.handler.CustomAccessDeniedHandler;
 import io.security.CoreSpringSecurity.security.provider.CustomAuthenticationProvider;
 import io.security.CoreSpringSecurity.security.service.SecurityResourceService;
+import io.security.CoreSpringSecurity.security.voter.IpAddressVoter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -131,10 +132,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private List<AccessDecisionVoter<?>> getAccessDecisionVoters() {
 
         List<AccessDecisionVoter<? extends Object>> accessDecisionVoters = new ArrayList<>();
+        accessDecisionVoters.add(new IpAddressVoter(securityResourceService));
         accessDecisionVoters.add(roleVoter());
 
         return accessDecisionVoters;
-//        return Arrays.asList(new RoleVoter());
     }
 
     @Bean
