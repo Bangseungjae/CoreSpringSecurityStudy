@@ -4,6 +4,7 @@ import io.security.CoreSpringSecurity.domain.entity.Account;
 import io.security.CoreSpringSecurity.repository.UserRepository;
 import io.security.CoreSpringSecurity.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,5 +18,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public void createUser(Account account) {
         userRepository.save(account);
+    }
+
+    @Override
+    @Secured("ROLE_MANAGER")
+    public void order() {
+        System.out.println("order()");
     }
 }
