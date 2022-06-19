@@ -38,7 +38,6 @@ import java.util.List;
 
 @EnableWebSecurity
 @Slf4j
-@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired

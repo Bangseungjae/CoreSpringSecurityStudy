@@ -5,10 +5,14 @@ import io.security.CoreSpringSecurity.domain.dto.AccountDto;
 import io.security.CoreSpringSecurity.service.UserService;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+
+import java.security.Principal;
 
 @Controller
 @AllArgsConstructor
@@ -20,9 +24,15 @@ public class UserController {
 
 
     @GetMapping("/mypage")
-    public String myPage() {
+    public String myPage(@AuthenticationPrincipal Account account, Authentication authentication, Principal principal) throws Exception{
+        return "user/mypage";
+    }
+
+    @GetMapping("/order")
+    public String order() {
         userService.order();
         return "user/mypage";
+
     }
 
     @GetMapping("/users")

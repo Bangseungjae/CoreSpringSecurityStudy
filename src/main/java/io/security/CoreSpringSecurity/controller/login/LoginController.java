@@ -18,15 +18,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.security.Principal;
 
 @Controller
-@Slf4j
 public class LoginController {
 
     @RequestMapping(value = {"/login", "/api/login"})
     public String login(@RequestParam(value = "error", required = false) String error,
                         @RequestParam(value = "exception", required = false) String exception, Model model) {
-        log.info("===login start===");
-        log.info("error={}", error);
-        log.info("exception={}", exception);
         model.addAttribute("error", error);
         model.addAttribute("exception", exception);
         return "login";
