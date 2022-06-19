@@ -21,10 +21,7 @@ import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Map;
 
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
@@ -67,7 +64,7 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
     }
 
     @Bean
-    public MethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource() {
+    public MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource() {
         return new MapBasedMethodSecurityMetadataSource(methodResourcesMapFactoryBean().getObject());
     }
 
